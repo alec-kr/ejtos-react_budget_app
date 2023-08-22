@@ -2,17 +2,27 @@ import React, { useContext, useState } from 'react';
 import { AppContext } from '../context/AppContext';
 
 const AllocationForm = (props) => {
-    const { dispatch,remaining  } = useContext(AppContext);
+    const { dispatch,remaining,currency } = useContext(AppContext);
 
     const [name, setName] = useState('');
     const [cost, setCost] = useState('');
     const [action, setAction] = useState('');
+    const { budget } = useContext(AppContext);
+    const { expenses } = useContext(AppContext);
+    const totalExpenses = expenses.reduce((total, item) => {
+        return (total += item.cost);
+    }, 0);
 
     const submitEvent = () => {
 
             if(cost > remaining) {
                 alert("The value cannot exceed remaining funds  £"+remaining);
                 setCost("");
+                return;
+            }
+
+            if (budget < totalExpenses) {
+                alert("You cannot reduce the budget value lower than the spending");
                 return;
             }
 
@@ -59,21 +69,23 @@ const AllocationForm = (props) => {
                 <option value="Reduce" name="Reduce">Reduce</option>
                   </select>
 
-                    <input
-                        required='required'
-                        type='number'
-                        id='cost'
-                        value={cost}
-                        style={{ marginLeft: '2rem' , size: 10}}
-                        onChange={(event) => setCost(event.target.value)}>
-                        </input>
+                  <div className="input-group-prepend bottom" style={{ display: 'flex', alignItems: 'center' }}>
+                    <div style={{ marginLeft: '0.5rem', marginRight: '0.2rem', fontSize: '1.2em' }}>{currency}</div>
+    <input
+        required='required'
+        type='number'
+        id='cost'
+        value={cost}
+        style={{ width: '5rem' }} 
+        onChange={(event) => setCost(event.target.value)}
+    />
+    <button className="btn btn-primary" onClick={submitEvent} style={{ marginLeft: '0.5rem' }}>
+        Save
+    </button>
+</div>
 
-                    <button className="btn btn-primary" onClick={submitEvent} style={{ marginLeft: '2rem' }}>
-                        Save
-                    </button>
                 </div>
                 </div>
-
         </div>
     );
 };
